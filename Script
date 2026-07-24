@@ -1,0 +1,210 @@
+// ---------- Data (fictional titles, no real shows) ----------
+const GRADIENTS = [
+  ['#e50914','#2b0508'],['#0f3d3e','#0a1a1a'],['#3d2b00','#120d00'],
+  ['#1a1a40','#05050f'],['#4a0e0e','#150303'],['#0e3d1f','#031a0d'],
+  ['#3d0e3a','#150315'],['#0e2a3d','#03121a'],['#3d2b0e','#1a1206'],
+  ['#2b0e3d','#12031a']
+];
+
+function gradientFor(i){
+  const g = GRADIENTS[i % GRADIENTS.length];
+  return `linear-gradient(135deg, ${g[0]}, ${g[1]})`;
+}
+
+const ROWS = [
+  {
+    title: 'Trending Now',
+    items: [
+      'Neon Horizon','Glass Republic','The Quiet Hour','Iron Tide','Paper Moon Society',
+      'Signal Lost','Ashfall','The Last Cartographer','Velvet Static','Harbor Lights'
+    ]
+  },
+  {
+    title: 'Because You Watched Neon Horizon',
+    items: [
+      'Orbit Drive','The Frequency','Deep Range','Nightglass','Echo Protocol',
+      'Salt & Circuit','The Wanderers Club','Fault Line','Grey Matter','Low Orbit'
+    ]
+  },
+  {
+    title: 'Critically Acclaimed Dramas',
+    items: [
+      'The Long Winter','Counterweight','A Quiet Fortune','The Understudy','Marrow',
+      'Falling Upward','The Keeper of Rooms','Ordinary Storms','Vantage','Between Tides'
+    ]
+  },
+  {
+    title: 'Comedies to Binge',
+    items: [
+      'Slightly Off','The Group Chat','Bad At Parties','Overshare','Neighborly',
+      'Full Refund','Emotional Support Human','The Backup Plan','Loud House Quiet Life','Two Star Review'
+    ]
+  },
+  {
+    title: 'Documentaries',
+    items: [
+      'Deep Sea Archive','The Silence of Bees','Concrete Rivers','Lost Frequencies','Paper Trail',
+      'The Last Print Shop','Undercurrent','Field Notes','The Weight of Water','Analog'
+    ]
+  }
+];
+
+const MATCH = () => 80 + Math.floor(Math.random()*19);
+const YEAR = () => 2019 + Math.floor(Math.random()*7);
+const SEASONS = () => Math.random() > .5 ? `${1+Math.floor(Math.random()*4)} Seasons` : `${90+Math.floor(Math.random()*40)}m`;
+const DESCS = [
+  'A fractured crew must decide between the mission and each other when a signal changes everything.',
+  'Two estranged siblings inherit a business neither of them wanted, and neither can let go of.',
+  'When the lights go out across the city, an unlikely group has one night to fix what they broke.',
+  'A former detective is pulled back into the case that ended her career, on her own terms this time.',
+  'A small coastal town keeps one very old secret, and someone just moved in next door to it.'
+];
+const CAST = [
+  'Starring an ensemble cast of rising talent.',
+  'From the creators of acclaimed original series.',
+  'Featuring a score by an award-winning composer.',
+  'Shot on location across three continents.'
+];
+
+// ---------- Build rows ----------
+const main = document.getElementById('rows');
+let cardIndex = 0;
+const cardData = {};
+
+ROWS.forEach((rowDef, rowIdx) => {
+  const row = document.createElement('section');
+  row.className = 'row';
+
+  const title = document.createElement('h3');
+  title.className = 'row-title';
+  title.textContent = rowDef.title;
+  row.appendChild(title);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'row-track-wrap';
+
+  const leftArrow = document.createElement('button');
+  leftArrow.className = 'row-arrow left';
+  leftArrow.textContent = '\u2039';
+  leftArrow.setAttribute('aria-label','Scroll left');
+
+  const rightArrow = document.createElement('button');
+  rightArrow.className = 'row-arrow right';
+  rightArrow.textContent = '\u203a';
+  rightArrow.setAttribute('aria-label','Scroll right');
+
+  const track = document.createElement('div');
+  track.className = 'row-track';
+
+  rowDef.items.forEach((name) => {
+    const id = cardIndex++;
+    const gradient = gradientFor(id);
+    const progress = rowIdx === 0 ? Math.floor(Math.random()*90) : null;
+
+    cardData[id] = {
+      name,
+      gradient,
+      match: MATCH(),
+      year: YEAR(),
+      seasons: SEASONS(),
+      desc: DESCS[id % DESCS.length],
+      cast: CAST[id % CAST.length]
+    };
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.background = gradient;
+    card.dataset.id = id;
+    card.dataset.name = name.toLowerCase();
+
+    card.innerHTML = `
+      <div class="card-label">${name}</div>
+      ${progress !== null ? `<div class="card-progress"><span style="width:${progress}%"></span></div>` : ''}
+      <div class="card-hover-info">
+        <div class="mini-actions">
+          <button class="play-mini" aria-label="Play">&#9654;</button>
+          <button aria-label="Add to My List">+</button>
+          <button aria-label="Like">&#128077;</button>
+          <button aria-label="More info" style="margin-left:auto">&#8964;</button>
+        </div>
+        <span class="match">${cardData[id].match}% Match</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => openModal(id));
+    track.appendChild(card);
+  });
+
+  leftArrow.addEventListener('click', () => track.scrollBy({left:-600,behavior:'smooth'}));
+  rightArrow.addEventListener('click', () => track.scrollBy({left:600,behavior:'smooth'}));
+
+  wrap.appendChild(leftArrow);
+  wrap.appendChild(track);
+  wrap.appendChild(rightArrow);
+  row.appendChild(wrap);
+  main.appendChild(row);
+});
+
+// ---------- Modal ----------
+const overlay = document.getElementById('modal-overlay');
+const modalHero = document.getElementById('modal-hero');
+const modalDesc = document.querySelector('.modal-desc');
+const modalCast = document.querySelector('.modal-cast');
+const modalYear = document.querySelector('.modal-year');
+const modalMatch = document.querySelector('.modal-match');
+const modalSeasons = document.querySelector('.modal-seasons');
+
+function openModal(id){
+  const data = cardData[id];
+  modalHero.style.background = data.gradient;
+  modalHero.querySelector('.modal-hero-fade') || modalHero.insertAdjacentHTML('afterbegin','<div class="modal-hero-fade"></div>');
+  modalDesc.textContent = data.desc;
+  modalCast.textContent = data.cast;
+  modalYear.textContent = data.year;
+  modalMatch.textContent = `${data.match}% Match`;
+  modalSeasons.textContent = data.seasons;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+// Hero "More Info" / "Play" open modal for the hero title
+document.getElementById('hero-info-btn').addEventListener('click', () => openModal(0));
+document.getElementById('play-btn').addEventListener('click', () => openModal(0));
+
+// ---------- Nav scroll effect ----------
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ---------- Search ----------
+const searchToggle = document.getElementById('search-toggle');
+const searchInput = document.getElementById('search-input');
+
+searchToggle.addEventListener('click', () => {
+  searchInput.classList.toggle('open');
+  if(searchInput.classList.contains('open')) searchInput.focus();
+  else searchInput.value = '', filterCards('');
+});
+
+searchInput.addEventListener('input', (e) => filterCards(e.target.value.trim().toLowerCase()));
+
+function filterCards(query){
+  document.querySelectorAll('.card').forEach(card => {
+    const match = !query || card.dataset.name.includes(query);
+    card.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.row').forEach(row => {
+    const anyVisible = [...row.querySelectorAll('.card')].some(c => c.style.display !== 'none');
+    row.style.display = anyVisible ? '' : 'none';
+  });
+}
