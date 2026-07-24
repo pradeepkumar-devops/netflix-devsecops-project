@@ -11,6 +11,11 @@ function gradientFor(i){
   return `linear-gradient(135deg, ${g[0]}, ${g[1]})`;
 }
 
+function posterUrl(name, w, h){
+  const seed = encodeURIComponent(name.toLowerCase().replace(/\s+/g,'-'));
+  return `https://picsum.photos/seed/${seed}/${w}/${h}`;
+}
+
 const ROWS = [
   {
     title: 'Trending Now',
@@ -99,11 +104,15 @@ ROWS.forEach((rowDef, rowIdx) => {
   rowDef.items.forEach((name) => {
     const id = cardIndex++;
     const gradient = gradientFor(id);
+    const poster = posterUrl(name, 400, 225);
+    const posterLarge = posterUrl(name, 900, 340);
     const progress = rowIdx === 0 ? Math.floor(Math.random()*90) : null;
 
     cardData[id] = {
       name,
       gradient,
+      poster,
+      posterLarge,
       match: MATCH(),
       year: YEAR(),
       seasons: SEASONS(),
@@ -113,7 +122,8 @@ ROWS.forEach((rowDef, rowIdx) => {
 
     const card = document.createElement('div');
     card.className = 'card';
-    card.style.background = gradient;
+    card.style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,.05) 55%, rgba(0,0,0,.75)), url('${poster}')`;
+    card.style.backgroundColor = gradient;
     card.dataset.id = id;
     card.dataset.name = name.toLowerCase();
 
@@ -156,7 +166,8 @@ const modalSeasons = document.querySelector('.modal-seasons');
 
 function openModal(id){
   const data = cardData[id];
-  modalHero.style.background = data.gradient;
+  modalHero.style.backgroundImage = `url('${data.posterLarge}')`;
+  modalHero.style.backgroundColor = data.gradient;
   modalHero.querySelector('.modal-hero-fade') || modalHero.insertAdjacentHTML('afterbegin','<div class="modal-hero-fade"></div>');
   modalDesc.textContent = data.desc;
   modalCast.textContent = data.cast;
