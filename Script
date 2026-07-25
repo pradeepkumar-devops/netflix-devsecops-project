@@ -16,14 +16,12 @@ function posterUrl(name, w, h){
   return `https://picsum.photos/seed/${seed}/${w}/${h}`;
 }
 
+const TRENDING = [
+  'Neon Horizon','Glass Republic','Peddi Run','Musafir Cafe','Bhoot Bangla',
+  'Lock Upp City','Ikka','The Quiet Hour','Iron Tide','Paper Moon Society'
+];
+
 const ROWS = [
-  {
-    title: 'Trending Now',
-    items: [
-      'Neon Horizon','Glass Republic','The Quiet Hour','Iron Tide','Paper Moon Society',
-      'Signal Lost','Ashfall','The Last Cartographer','Velvet Static','Harbor Lights'
-    ]
-  },
   {
     title: 'Because You Watched Neon Horizon',
     items: [
@@ -71,12 +69,51 @@ const CAST = [
   'Shot on location across three continents.'
 ];
 
-// ---------- Build rows ----------
-const main = document.getElementById('rows');
 let cardIndex = 0;
 const cardData = {};
 
-ROWS.forEach((rowDef, rowIdx) => {
+// ---------- Hero poster collage background ----------
+const posterGrid = document.getElementById('poster-grid');
+const collageNames = [...TRENDING, ...ROWS.flatMap(r => r.items)].slice(0, 36);
+collageNames.forEach((name) => {
+  const tile = document.createElement('div');
+  tile.style.backgroundImage = `url('${posterUrl(name, 200, 300)}')`;
+  posterGrid.appendChild(tile);
+});
+
+// ---------- Trending Now (numbered row) ----------
+const trendTrack = document.getElementById('trending-track');
+TRENDING.forEach((name, i) => {
+  const id = cardIndex++;
+  const gradient = gradientFor(id);
+  const poster = posterUrl(name, 400, 600);
+  const posterLarge = posterUrl(name, 900, 340);
+
+  cardData[id] = {
+    name, gradient, poster, posterLarge,
+    match: MATCH(), year: YEAR(), seasons: SEASONS(),
+    desc: DESCS[id % DESCS.length], cast: CAST[id % CAST.length]
+  };
+
+  const card = document.createElement('div');
+  card.className = 'trend-card';
+  card.dataset.id = id;
+  card.dataset.name = name.toLowerCase();
+  card.innerHTML = `
+    <span class="trend-num">${i + 1}</span>
+    <div class="trend-poster" style="background-image:linear-gradient(180deg, rgba(0,0,0,.05) 55%, rgba(0,0,0,.55)), url('${poster}'); background-color:${gradient}"></div>
+  `;
+  card.addEventListener('click', () => openModal(id));
+  trendTrack.appendChild(card);
+});
+
+document.getElementById('trend-left').addEventListener('click', () => trendTrack.scrollBy({left:-600,behavior:'smooth'}));
+document.getElementById('trend-right').addEventListener('click', () => trendTrack.scrollBy({left:600,behavior:'smooth'}));
+
+// ---------- Build remaining rows ----------
+const main = document.getElementById('rows');
+
+ROWS.forEach((rowDef) => {
   const row = document.createElement('section');
   row.className = 'row';
 
@@ -106,18 +143,12 @@ ROWS.forEach((rowDef, rowIdx) => {
     const gradient = gradientFor(id);
     const poster = posterUrl(name, 400, 225);
     const posterLarge = posterUrl(name, 900, 340);
-    const progress = rowIdx === 0 ? Math.floor(Math.random()*90) : null;
+    const progress = Math.floor(Math.random()*90);
 
     cardData[id] = {
-      name,
-      gradient,
-      poster,
-      posterLarge,
-      match: MATCH(),
-      year: YEAR(),
-      seasons: SEASONS(),
-      desc: DESCS[id % DESCS.length],
-      cast: CAST[id % CAST.length]
+      name, gradient, poster, posterLarge,
+      match: MATCH(), year: YEAR(), seasons: SEASONS(),
+      desc: DESCS[id % DESCS.length], cast: CAST[id % CAST.length]
     };
 
     const card = document.createElement('div');
@@ -129,7 +160,7 @@ ROWS.forEach((rowDef, rowIdx) => {
 
     card.innerHTML = `
       <div class="card-label">${name}</div>
-      ${progress !== null ? `<div class="card-progress"><span style="width:${progress}%"></span></div>` : ''}
+      <div class="card-progress"><span style="width:${progress}%"></span></div>
       <div class="card-hover-info">
         <div class="mini-actions">
           <button class="play-mini" aria-label="Play">&#9654;</button>
@@ -187,35 +218,18 @@ document.getElementById('modal-close').addEventListener('click', closeModal);
 overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
 
-// Hero "More Info" / "Play" open modal for the hero title
-document.getElementById('hero-info-btn').addEventListener('click', () => openModal(0));
-document.getElementById('play-btn').addEventListener('click', () => openModal(0));
-
 // ---------- Nav scroll effect ----------
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// ---------- Search ----------
-const searchToggle = document.getElementById('search-toggle');
-const searchInput = document.getElementById('search-input');
-
-searchToggle.addEventListener('click', () => {
-  searchInput.classList.toggle('open');
-  if(searchInput.classList.contains('open')) searchInput.focus();
-  else searchInput.value = '', filterCards('');
+// ---------- Email signup form ----------
+const emailForm = document.getElementById('email-form');
+emailForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email-input').value;
+  if (email) {
+    document.getElementById('trending').scrollIntoView({ behavior: 'smooth' });
+  }
 });
-
-searchInput.addEventListener('input', (e) => filterCards(e.target.value.trim().toLowerCase()));
-
-function filterCards(query){
-  document.querySelectorAll('.card').forEach(card => {
-    const match = !query || card.dataset.name.includes(query);
-    card.style.display = match ? '' : 'none';
-  });
-  document.querySelectorAll('.row').forEach(row => {
-    const anyVisible = [...row.querySelectorAll('.card')].some(c => c.style.display !== 'none');
-    row.style.display = anyVisible ? '' : 'none';
-  });
-}
