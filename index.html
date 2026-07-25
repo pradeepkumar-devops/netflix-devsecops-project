@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NETFLIX CLONE</title>
+<title>Netflix Clone</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,44 +12,43 @@
   <header class="nav" id="nav">
     <div class="nav-left">
       <h1 class="logo">NETFLIX</h1>
-      <nav class="nav-links">
-        <a href="#" class="active">Home</a>
-        <a href="#rows">TV Shows</a>
-        <a href="#rows">Movies</a>
-        <a href="#rows">New &amp; Popular</a>
-        <a href="#rows">My List</a>
-      </nav>
     </div>
     <div class="nav-right">
-      <button class="icon-btn" id="search-toggle" aria-label="Search">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
-      </button>
-      <input type="text" id="search-input" class="search-input" placeholder="Titles, people, genres">
-      <div class="profile">
-        <div class="avatar">N</div>
-      </div>
+      <select class="lang-select" aria-label="Language">
+        <option>English</option>
+        <option>हिंदी</option>
+      </select>
+      <button class="btn btn-signin" id="signin-btn">Sign In</button>
     </div>
   </header>
 
   <!-- HERO -->
   <section class="hero" id="hero">
-    <div class="hero-fade"></div>
+    <div class="hero-poster-grid" id="poster-grid"></div>
+    <div class="hero-vignette"></div>
     <div class="hero-content">
-      <p class="hero-eyebrow">N SERIES</p>
-      <h2 class="hero-title">Neon Horizon</h2>
-      <p class="hero-desc">A signal from beyond the outer colonies forces a fractured crew to choose between the mission and each other. Season 1 now streaming.</p>
-      <div class="hero-buttons">
-        <button class="btn btn-play" id="play-btn">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
-          Play
+      <h2 class="hero-headline">Unlimited movies, TV<br>shows and more</h2>
+      <p class="hero-sub">Starts at ₹149. Cancel at any time.</p>
+      <p class="hero-cta-line">Ready to watch? Enter your email to create or restart your membership.</p>
+      <form class="email-form" id="email-form">
+        <input type="email" id="email-input" class="email-input" placeholder="Email address" required>
+        <button type="submit" class="btn btn-getstarted">Get Started
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
         </button>
-        <button class="btn btn-info" id="hero-info-btn">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9a10 10 0 1 0 .01 20A10 10 0 0 0 12 2z"/></svg>
-          More Info
-        </button>
-      </div>
+      </form>
     </div>
-    <div class="age-badge">16+</div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TRENDING -->
+  <section class="trending" id="trending">
+    <h3 class="trending-title">Trending Now</h3>
+    <div class="trending-track-wrap">
+      <button class="row-arrow left" id="trend-left" aria-label="Scroll left">&#8249;</button>
+      <div class="trending-track" id="trending-track"></div>
+      <button class="row-arrow right" id="trend-right" aria-label="Scroll right">&#8250;</button>
+    </div>
   </section>
 
   <!-- ROWS -->
@@ -57,27 +56,27 @@
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-social">
-      <a href="#" aria-label="Facebook">FB</a>
-      <a href="#" aria-label="Instagram">IG</a>
-      <a href="#" aria-label="X">X</a>
-      <a href="#" aria-label="YouTube">YT</a>
-    </div>
+    <p class="footer-question">Questions? Call 000-800-919-1743</p>
     <div class="footer-links">
-      <a href="#">Audio and Subtitles</a>
-      <a href="#">Audio Description</a>
+      <a href="#">FAQ</a>
       <a href="#">Help Center</a>
-      <a href="#">Gift Cards</a>
+      <a href="#">Account</a>
       <a href="#">Media Center</a>
       <a href="#">Investor Relations</a>
       <a href="#">Jobs</a>
+      <a href="#">Ways to Watch</a>
       <a href="#">Terms of Use</a>
       <a href="#">Privacy</a>
-      <a href="#">Legal Notices</a>
       <a href="#">Cookie Preferences</a>
       <a href="#">Corporate Information</a>
       <a href="#">Contact Us</a>
+      <a href="#">Speed Test</a>
+      <a href="#">Legal Notices</a>
     </div>
+    <select class="lang-select footer-lang" aria-label="Language">
+      <option>English</option>
+      <option>हिंदी</option>
+    </select>
     <p class="footer-note">Netflix DevSecOps Pipeline Version 2</p>
   </footer>
 
