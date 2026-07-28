@@ -95,6 +95,149 @@ This project simulates a real-world production pipeline: code is checked out fro
 
 ## ⚙️ Setup Guide (From Scratch)
 
+## PHASE 1 – AWS Infrastructure Setup
+Step 1: Create GitHub Repository First
+-Login to GitHub.
+-Click: New Repository
+
+-Repository Name:netflix-devsecops-project
+
+#Select:
+
+✓ Public
+✓ Add README
+
+#Click:Create Repository
+
+## Step 2: Initial README
+-Create this README content.
+-Use this as your starting README:
+-Netflix DevSecOps Project
+
+## Step 3: Create AWS Free Tier EC2
+-Open AWS Console:EC2 → Launch Instance
+-Settings:
+-Name:netflix-devsecops-server
+-AMI:Ubuntu Server 24.04 LTS
+-Instance Type:t2.micro (or) t3.micro   (Free Tier eligible)
+
+## Step 4: Create Key Pair
+-Click:Create New Key Pair
+-Name:netflix-key
+-Type:RSA
+ -Format:.pem
+-Download and save safely.
+
+## Step 5: Configure Storage
+-Change:8 GB → 30 GB
+-Reason:Jenkins + SonarQube + Docker images need space.
+
+## Step 6: Configure Security Group
+
+-Add rules:Type	Port
+-SSH	22
+-HTTP	80
+-Custom TCP	8080
+-Custom TCP	9000
+-Custom TCP	3000
+-Custom TCP	9090
+-Source:Anywhere (0.0.0.0/0)
+
+## Step 7: Launch Instance
+-Click:Launch Instance
+-Wait until:Instance State = Running
+
+## Step 8: Get Public IP
+-Copy:Public IPv4 Address
+=Example:13.233.xxx.xxx
+-Save it.
+
+## Step 9: Connect from Windows
+
+Open PowerShell.
+
+Go to the folder containing:
+
+netflix-key.pem
+
+Example:
+
+cd Downloads
+
+Set permissions if needed:
+
+icacls .\netflix-key.pem /inheritance:r
+icacls .\netflix-key.pem /grant:r "$($env:USERNAME):(R)"
+
+Connect:
+
+ssh -i netflix-key.pem ubuntu@YOUR_PUBLIC_IP
+
+Example:
+
+ssh -i netflix-key.pem ubuntu@13.233.xxx.xxx
+
+Type:
+
+yes
+Step 10: Verify Connection
+
+Run:
+
+whoami
+
+Expected:
+
+ubuntu
+
+Run:
+
+pwd
+
+Expected:
+
+/home/ubuntu
+Step 11: Update Server
+
+Run:
+
+sudo apt update
+
+Then:
+
+sudo apt upgrade -y
+
+This may take several minutes.
+
+Step 12: Install Basic Packages
+sudo apt install -y \
+git \
+curl \
+wget \
+unzip \
+vim \
+net-tools
+
+Verify:
+
+git --version
+
+Verify:
+
+curl --version
+Step 13: Create Project Folder
+mkdir ~/projects
+
+cd ~/projects
+
+Verify:
+
+pwd
+
+Expected:
+
+/home/ubuntu/projects
+
 ### 1. AWS EC2 Setup
 - Launch an EC2 instance (Ubuntu, Free Tier eligible)
 - Allocate and associate an **Elastic IP** so the address never changes
