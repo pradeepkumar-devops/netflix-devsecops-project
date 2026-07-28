@@ -109,48 +109,43 @@ Step 1: Create GitHub Repository First
 
 #Click:Create Repository
 
-## Step 2: Initial README
-Create this README content.
-->Use this as your starting README:
-->Netflix DevSecOps Project
-
-## Step 3: Create AWS Free Tier EC2
+## Step 2: Create AWS Free Tier EC2
 ->Open AWS Console:EC2 → Launch Instance
 ->Settings:
 ->Name:netflix-devsecops-server
 ->AMI:Ubuntu Server 24.04 LTS
 ->Instance Type:t2.micro (or) t3.micro   (Free Tier eligible)
 
-## Step 4: Create Key Pair
--Click:Create New Key Pair
--Name:netflix-key
--Type:RSA
- -Format:.pem
--Download and save safely.
+## Step 3: Create Key Pair
+->Click:Create New Key Pair
+->Name:netflix-key
+->Type:RSA
+ ->Format:.pem
+-?Download and save safely.
 
-## Step 5: Configure Storage
--Change:8 GB → 30 GB
--Reason:Jenkins + SonarQube + Docker images need space.
+## Step 4: Configure Storage
+->Change:8 GB → 30 GB
+->Reason:Jenkins + SonarQube + Docker images need space.
 
-## Step 6: Configure Security Group
+## Step 5: Configure Security Group
 
--Add rules:Type	Port
--SSH	22
--HTTP	80
--Custom TCP	8080
--Custom TCP	9000
--Custom TCP	3000
--Custom TCP	9090
--Source:Anywhere (0.0.0.0/0)
+| **Type**   | **Port** | **Source**           |
+| ---------- | -------: | -------------------- |
+| SSH        |       22 | Anywhere (0.0.0.0/0) |
+| HTTP       |       80 | Anywhere (0.0.0.0/0) |
+| Custom TCP |     8080 | Anywhere (0.0.0.0/0) |
+| Custom TCP |     9000 | Anywhere (0.0.0.0/0) |
+| Custom TCP |     3000 | Anywhere (0.0.0.0/0) |
+| Custom TCP |     9090 | Anywhere (0.0.0.0/0) |
 
-## Step 7: Launch Instance
--Click:Launch Instance
--Wait until:Instance State = Running
+## Step 6: Launch Instance
+->Click:Launch Instance
+->Wait until:Instance State = Running
 
 ## Step 8: Get Public IP
--Copy:Public IPv4 Address
-=Example:13.233.xxx.xxx
--Save it.
+->Copy:Public IPv4 Address
+->Example:13.233.xxx.xxx
+->Save it.
 
 ## Step 9: Connect from Windows
 
