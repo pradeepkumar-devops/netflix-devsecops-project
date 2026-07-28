@@ -417,17 +417,182 @@ curl http://localhost
 ```
 
 ---
-
-## ✅ Phase 2 Checklist
-
-- Docker installed
-- Docker service running
-- Docker permissions configured
-- Project directory created
-- Git initialized
-- Netflix application created
-- Docker image built
-- Docker container running
-- Application accessible via Elastic IP
-- Code pushed to GitHub
 **Phase 2 is now complete.**
+  # PHASE 3 – Jenkins Installation
+
+## Why Jenkins?
+
+Jenkins automates the CI/CD pipeline:
+
+```text
+GitHub Push
+      ↓
+Jenkins Trigger
+      ↓
+Build Docker Image
+      ↓
+Deploy Container
+```
+
+Later, we'll integrate:
+
+- SonarQube
+- Trivy
+- Docker Hub
+
+---
+
+## Step 1: Install Java 21
+run:
+
+```bash
+sudo apt update
+sudo apt install fontconfig openjdk-21-jre
+java -version
+```
+
+Verify the installation.
+
+```bash
+java -version
+```
+
+Expected:
+
+```
+openjdk version "21"
+```
+
+---
+
+## Step 2: Install Jenkins
+
+Add the Jenkins repository.
+
+```bash
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install jenkins
+```
+
+Update packages and install Jenkins.
+
+```bash
+sudo apt update
+sudo apt install jenkins -y
+```
+
+Start and enable the Jenkins service.
+
+```bash
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+```
+
+Expected:
+
+```
+active (running)
+```
+
+Press **`q`** to exit.
+
+---
+
+## Step 3: Verify Jenkins
+
+Check whether Jenkins is listening on port **8080**.
+
+```bash
+sudo ss -tulpn | grep 8080
+```
+
+Expected:
+
+```
+LISTEN ... *:8080
+```
+
+Open Jenkins in your browser.
+
+```
+http://YOUR_ELASTIC_IP:8080
+```
+
+You should see the **Unlock Jenkins** page.
+
+Retrieve the initial admin password.
+
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+Copy the password and paste it into the Jenkins setup page.
+
+---
+
+## Step 4: Initial Jenkins Setup
+
+- Click **Install Suggested Plugins**.
+- Wait for the installation to finish.
+- Create the admin user.
+
+Example:
+
+- Username: `admin`
+- Password: `StrongPassword`
+- Full Name: `Pradeep Kumar`
+- Email: `YOUR_EMAIL`
+
+---
+
+## Step 5: Install Required Plugins
+
+Navigate to:
+
+```
+Manage Jenkins
+    ↓
+Plugins
+```
+
+Install the following plugins:
+
+- Git
+- Pipeline
+- Docker
+- Docker Pipeline
+- SSH Agent
+
+Restart Jenkins if prompted.
+
+---
+
+## Step 6: Allow Jenkins to Use Docker
+
+Add the Jenkins user to the Docker group.
+
+```bash
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+```
+
+Verify:
+
+```bash
+groups jenkins
+```
+
+Expected output should include:
+
+```
+docker
+```
+
+---
+
