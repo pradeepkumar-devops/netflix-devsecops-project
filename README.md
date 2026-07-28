@@ -90,6 +90,7 @@ This project simulates a real-world production pipeline: code is checked out fro
 - ✅ Automated container deployment
 - ✅ Real-time infrastructure monitoring with Prometheus + Node Exporter
 - ✅ Visual dashboards in Grafana (CPU, memory, disk, network, load)
+  
 
 ---
 
@@ -163,16 +164,18 @@ Run: 'whoami'
 ->Expected output: 'ubuntu'
 ->Run:pwd
 ->Expected output: '/home/ubuntu'
-Step 11: Update Server
+## Step 10: Update Server
 Run: 'sudo apt update'
 ->Then: 'sudo apt upgrade -y'
 ->This may take several minutes.
 
-## Step 10: Install Basic Packages
+## Step 11: Install Basic Packages
 Run:sudo apt install -y git curl wget unzip vim net-tools
-Verify Git: 'git --version'
-Verify Curl: 'crl --version'
-Step 13: Create Project Folder
+- ✅ Verify Git: 'git --version'
+- ✅ Verify Curl: 'crl --version'
+  
+  
+## Step 12: Create Project Folder
 Run: mkdir ~/projects
 ->cd ~/projects
 ->Verify:pwd
