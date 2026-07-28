@@ -147,7 +147,7 @@ Step 1: Create GitHub Repository First
 ->Example:13.233.xxx.xxx
 ->Save it.
 
-Step 8: Connect Using MobXterm
+## Step 8: Connect Using MobXterm
 ->Open 'MobXterm'.
 ->Click Session → SSH.
 ->In Remote host, enter your EC2 Public IP Address.
@@ -157,7 +157,8 @@ Step 8: Connect Using MobXterm
 ->Click OK to connect.
 
 "Note: If prompted to accept the server fingerprint, click Accept or Yes."
-Step 9: Verify Connection
+
+## Step 9: Verify Connection
 Run: 'whoami'
 ->Expected output: 'ubuntu'
 ->Run:pwd
@@ -167,7 +168,7 @@ Run: 'sudo apt update'
 ->Then: 'sudo apt upgrade -y'
 ->This may take several minutes.
 
-Step 12: Install Basic Packages
+## Step 10: Install Basic Packages
 Run:sudo apt install -y git curl wget unzip vim net-tools
 Verify Git: 'git --version'
 Verify Curl: 'crl --version'
