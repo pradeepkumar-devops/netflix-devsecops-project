@@ -197,3 +197,285 @@ Public IPv4 Address = Elastic IP
 ###Example:
 43.xx.xx.xx
 ###This IP will remain the same even after restarting the instance.
+
+## PHASE 2 – Docker Installation
+### Step 1: Check System Resources
+- Before installing Docker,
+- check: Run
+- free -h (check RAM)
+- df -h (check disk space)
+- nproc (check CPU Cores)
+
+This tells us available RAM, disk, and CPU.
+
+Step 2: Install Docker
+
+Run:
+'''bash
+curl -fsSL https://get.docker.com -o install-docker.sh
+Check the file:
+ls -l
+Install Docker:
+sudo sh install-docker.sh
+
+Wait until installation completes.
+
+Step 3: Verify Docker Service
+
+Check:
+
+sudo systemctl status docker
+
+Expected:
+
+active (running)
+
+Press:
+
+q
+
+to exit.
+
+Step 4: Enable Docker at Boot
+sudo systemctl enable docker
+
+Verify:
+
+sudo systemctl is-enabled docker
+
+Expected:
+
+enabled
+Step 5: Allow Ubuntu User to Use Docker
+
+Without this, you'll get:
+
+permission denied while trying to connect to docker.sock
+
+Add user:
+
+sudo usermod -aG docker ubuntu
+
+Apply changes:
+
+newgrp docker
+Step 6: Verify Docker
+docker --version
+
+Example:
+
+Docker version 28.x.x
+Step 7: Test Docker
+
+Run:
+
+docker run hello-world
+
+Expected:
+
+Hello from Docker!
+
+If you see this message, Docker is working.
+
+PHASE 2.1 – Create Project Directory
+
+Create workspace:
+
+mkdir -p ~/projects/netflix-devsecops-project
+
+Go inside:
+
+cd ~/projects/netflix-devsecops-project
+
+Verify:
+
+pwd
+
+Expected:
+
+/home/ubuntu/projects/netflix-devsecops-project
+PHASE 2.2 – Initialize Git Repository
+
+Initialize Git:
+
+git init
+
+Configure Git if needed:
+
+git config --global user.name "Pradeep Kumar"
+git config --global user.email "YOUR_GITHUB_EMAIL"
+
+Check:
+
+git config --list
+PHASE 2.3 – Create Netflix App Files
+
+Create files:
+
+touch index.html
+touch style.css
+touch Dockerfile
+touch README.md
+
+Check:
+
+ls
+
+Expected:
+
+Dockerfile
+README.md
+index.html
+style.css
+Step 8: Create Netflix Homepage
+
+Edit:
+
+vim index.html
+
+Press i and paste:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Netflix Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>NETFLIX</h1>
+    <h2>Unlimited movies, TV shows and more.</h2>
+    <p>DevSecOps Project by Pradeep Kumar</p>
+</body>
+</html>
+
+Save:
+
+ESC
+:wq
+Step 9: Create CSS
+vim style.css
+
+Paste:
+
+body{
+    background:black;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+    margin-top:100px;
+}
+
+h1{
+    color:red;
+    font-size:60px;
+}
+
+Save:
+
+ESC
+:wq
+Step 10: Test Locally
+
+Install nginx:
+
+sudo apt install nginx -y
+
+Copy files:
+
+sudo cp index.html /var/www/html/
+sudo cp style.css /var/www/html/
+
+Open browser:
+
+http://YOUR_ELASTIC_IP
+
+You should see the Netflix page.
+
+PHASE 2.4 – Dockerize Application
+
+Create Dockerfile:
+
+vim Dockerfile
+
+Paste:
+
+FROM nginx:latest
+
+COPY . /usr/share/nginx/html
+
+EXPOSE 80
+
+Save.
+
+Step 11: Build Docker Image
+
+Inside project folder:
+
+docker build -t netflix:v1 .
+
+Check:
+
+docker images
+
+Expected:
+
+netflix    v1
+Step 12: Run Container
+
+Stop nginx first to free port 80:
+
+sudo systemctl stop nginx
+
+Run:
+
+docker run -d --name netflix-container -p 80:80 netflix:v1
+
+Verify:
+
+docker ps
+
+Open:
+
+http://YOUR_ELASTIC_IP
+
+You should see the Netflix page served from Docker.
+
+Step 13: Commit to GitHub
+
+Create .gitignore:
+
+touch .gitignore
+
+Add:
+
+*.log
+
+Commit:
+
+git add .
+git commit -m "Initial Netflix application and Docker setup"
+
+Connect your GitHub repository:
+
+git remote add origin YOUR_REPOSITORY_URL
+
+Push:
+git branch -M main
+git push -u origin main
+
+## Phase 2 Completion Checklist
+✅ Docker installed
+✅ Docker service running
+✅ Docker permissions fixed
+✅ Netflix app created
+✅ Dockerfile created
+✅ Docker image built
+✅ Container running
+✅ App accessible via Elastic IP
+✅ Code pushed to GitHub
+
+Stop here and verify these commands:
+docker --version
+docker ps
+docker images
+curl http://localhost
