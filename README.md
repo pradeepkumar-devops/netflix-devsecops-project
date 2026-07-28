@@ -142,269 +142,40 @@ Step 1: Create GitHub Repository First
 ->Click:Launch Instance
 ->Wait until:Instance State = Running
 
-## Step 8: Get Public IP
+## Step 7: Get Public IP
 ->Copy:Public IPv4 Address
 ->Example:13.233.xxx.xxx
 ->Save it.
 
-## Step 9: Connect from Windows
+Step 8: Connect Using MobXterm
+->Open 'MobXterm'.
+->Click Session → SSH.
+->In Remote host, enter your EC2 Public IP Address.
+->Specify the username: 'ubuntu'
+->Check Use private key.
+->Browse and select your private key file: 'netflix-key.pem'
+->Click OK to connect.
 
-Open PowerShell.
-
-Go to the folder containing:
-
-netflix-key.pem
-
-Example:
-
-cd Downloads
-
-Set permissions if needed:
-
-icacls .\netflix-key.pem /inheritance:r
-icacls .\netflix-key.pem /grant:r "$($env:USERNAME):(R)"
-
-Connect:
-
-ssh -i netflix-key.pem ubuntu@YOUR_PUBLIC_IP
-
-Example:
-
-ssh -i netflix-key.pem ubuntu@13.233.xxx.xxx
-
-Type:
-
-yes
-Step 10: Verify Connection
-
-Run:
-
-whoami
-
-Expected:
-
-ubuntu
-
-Run:
-
-pwd
-
-Expected:
-
-/home/ubuntu
+"Note: If prompted to accept the server fingerprint, click Accept or Yes."
+Step 9: Verify Connection
+Run: 'whoami'
+->Expected output: 'ubuntu'
+->Run:pwd
+->Expected output: '/home/ubuntu'
 Step 11: Update Server
-
-Run:
-
-sudo apt update
-
-Then:
-
-sudo apt upgrade -y
-
-This may take several minutes.
+Run: 'sudo apt update'
+->Then: 'sudo apt upgrade -y'
+->This may take several minutes.
 
 Step 12: Install Basic Packages
-sudo apt install -y \
-git \
-curl \
-wget \
-unzip \
-vim \
-net-tools
-
-Verify:
-
-git --version
-
-Verify:
-
-curl --version
+Run:sudo apt install -y git curl wget unzip vim net-tools
+Verify Git: 'git --version'
+Verify Curl: 'crl --version'
 Step 13: Create Project Folder
-mkdir ~/projects
+Run: mkdir ~/projects
+->cd ~/projects
+->Verify:pwd
 
-cd ~/projects
+Expected output:
 
-Verify:
-
-pwd
-
-Expected:
-
-/home/ubuntu/projects
-
-### 1. AWS EC2 Setup
-- Launch an EC2 instance (Ubuntu, Free Tier eligible)
-- Allocate and associate an **Elastic IP** so the address never changes
-- Configure Security Group inbound rules to allow required ports:
-  - `22` (SSH), `80` (App), `8080` (Jenkins), `9000` (SonarQube), `9090` (Prometheus), `3000` (Grafana), `9100` (Node Exporter)
-
-### 2. Install Docker
-```bash
-sudo apt update
-sudo apt install docker.io -y
-sudo usermod -aG docker $USER
-```
-
-### 3. Clone the Application
-```bash
-git clone https://github.com/YOUR_USERNAME/netflix-devsecops-project.git
-cd netflix-devsecops-project
-```
-
-### 4. Run Jenkins, SonarQube (as Docker containers)
-```bash
-docker run -d --name jenkins -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
-docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
-```
-
-### 5. Install Trivy
-```bash
-sudo apt install wget -y
-wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_Linux-64bit.deb
-sudo dpkg -i trivy_Linux-64bit.deb
-```
-
-### 6. DockerHub Setup
-- Create a repository on [Docker Hub](https://hub.docker.com)
-- Add DockerHub credentials in Jenkins:
-  `Manage Jenkins → Credentials → Global → Add Credentials`
-  (Kind: Username with Password, ID: `dockerhub-creds`)
-
-### 7. Monitoring Setup
-```bash
-docker run -d --name prometheus -p 9090:9090 -v ~/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
-docker run -d --name grafana -p 3000:3000 grafana/grafana
-docker run -d --name node-exporter --restart unless-stopped -p 9100:9100 prom/node-exporter
-```
-- In Grafana: add Prometheus as a data source, then import dashboard ID **1860** (Node Exporter Full)
-
----
-
-## 🔗 GitHub Webhook Integration
-
-Instead of manually clicking **Build Now** in Jenkins, the pipeline now triggers automatically whenever code is pushed to GitHub.
-
-**How it works:**
-```
-git push  →  GitHub Webhook  →  Jenkins Job Triggered Automatically
-```
-
-**Setup steps:**
-1. In the GitHub repo: `Settings → Webhooks → Add Webhook`
-2. Payload URL: `http://YOUR_ELASTIC_IP:8080/github-webhook/`
-3. Content type: `application/json`
-4. Event: `Just the push event`
-5. In Jenkins job configuration: enable **"GitHub hook trigger for GITScm polling"**
-
-**Result:** Every push to `main` automatically kicks off checkout → scan → build → deploy, with zero manual steps.
-
----
-
-## 📄 Jenkinsfile in Repository (Pipeline as Code)
-
-Previously, the pipeline script lived only inside the Jenkins UI. It has now been moved into the repository as a `Jenkinsfile`, making the pipeline itself version-controlled, reviewable, and portable.
-
-**Jenkins job configuration:**
-- Pipeline → Definition: **Pipeline script from SCM**
-- SCM: Git
-- Repository URL: `https://github.com/YOUR_USERNAME/netflix-devsecops-project.git`
-- Script Path: `Jenkinsfile`
-
-This means the CI/CD logic changes through pull requests just like application code — a core DevOps best practice.
-
----
-
-## 📁 Repository Structure
-
-```
-netflix-devsecops-project/
-│
-├── Dockerfile
-├── Jenkinsfile
-├── README.md
-├── sonar-project.properties
-├── .gitignore
-│
-├── app/
-│   ├── index.html
-│   └── style.css
-│
-├── monitoring/
-│   └── prometheus.yml
-│
-└── screenshots/
-    ├── aws/
-    ├── jenkins/
-    ├── sonarqube/
-    ├── trivy/
-    ├── docker/
-    ├── dockerhub/
-    ├── prometheus/
-    ├── grafana/
-    └── webhook/
-```
-
----
-
-## 📸 Where to Add Screenshots
-
-Create a `screenshots/` folder in your repo (structure above) and drop in evidence for each stage. Recommended screenshots per folder:
-
-| Folder | What to capture |
-|---|---|
-| `aws/` | EC2 instance running, Elastic IP, Security Group rules |
-| `jenkins/` | Jenkins dashboard, pipeline stage view, successful build console output |
-| `sonarqube/` | Project dashboard showing code quality/quality gate result |
-| `trivy/` | Terminal output of filesystem scan and image scan |
-| `docker/` | `docker images` and `docker ps` output showing built/running containers |
-| `dockerhub/` | DockerHub repository page showing the pushed image |
-| `prometheus/` | Prometheus targets page showing `node-exporter = UP` |
-| `grafana/` | Grafana dashboard with live CPU/memory/network graphs |
-| `webhook/` | GitHub webhook settings page + a Jenkins build auto-triggered by a push |
-
-Then reference them in this README like:
-```markdown
-![Jenkins Pipeline](screenshots/jenkins/pipeline-success.png)
-```
-
----
-
-## 🧑‍💻 What I Learned (Skills Demonstrated)
-
-- **Cloud Infrastructure:** provisioning and securing AWS EC2, networking basics, Elastic IP management
-- **Linux Administration:** package management, services, users/permissions, SSH, troubleshooting
-- **CI/CD Engineering:** designing multi-stage Jenkins pipelines, Pipeline as Code, secrets management
-- **DevSecOps:** shifting security left with SonarQube (code quality) and Trivy (dependency + image scanning)
-- **Containerization:** Dockerfile authoring, image tagging/versioning, registry workflows with DockerHub
-- **Automation:** event-driven builds using GitHub Webhooks (eliminating manual deployment steps)
-- **Observability:** setting up a full metrics pipeline (Node Exporter → Prometheus → Grafana) and reading dashboards to reason about system health
-
----
-
-## 📝 Resume Entry
-
-**Netflix DevSecOps CI/CD Pipeline**
-*AWS EC2 · Jenkins · SonarQube · Trivy · Docker · DockerHub · Prometheus · Grafana*
-
-- Built an end-to-end, webhook-triggered DevSecOps CI/CD pipeline on AWS EC2 for a containerized web application.
-- Automated source checkout, static code analysis, and dependency/image vulnerability scanning using SonarQube and Trivy.
-- Converted the Jenkins pipeline to Pipeline-as-Code (Jenkinsfile) stored in version control for full auditability.
-- Configured DockerHub as the image registry with secure Jenkins credential management for automated image push and deployment.
-- Implemented infrastructure monitoring using Prometheus, Node Exporter, and Grafana dashboards.
-
----
-
-## 🔮 Future Improvements
-
-- [ ] Migrate deployment from Docker CLI to **Kubernetes** (Deployments, Services, Ingress, Rolling Updates, Rollbacks)
-- [ ] Add ConfigMaps/Secrets for environment-specific configuration
-- [ ] Add automated Slack/email notifications on build success or failure
-- [ ] Add HTTPS via a reverse proxy (Nginx/Traefik) and a custom domain
-- [ ] Add alerting rules in Prometheus (Alertmanager) for CPU/memory thresholds
-
----
-
-## 📬 Contact
-
-If you have questions about this project or want to discuss the implementation, feel free to reach out via GitHub Issues on this repository.
+/home/ubuntu/projectsabout this project or want to discuss the implementation, feel free to reach out via GitHub Issues on this repository.
