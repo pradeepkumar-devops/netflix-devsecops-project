@@ -595,4 +595,357 @@ docker
 ```
 
 ---
+# PHASE 4 – Jenkins CI/CD Pipeline
 
+## Goal
+
+Automate deployment whenever code is pushed to GitHub.
+
+```text
+GitHub
+   ↓
+Jenkins
+   ↓
+Pull Latest Code
+   ↓
+Build Docker Image
+   ↓
+Stop Old Container
+   ↓
+Deploy New Container
+```
+
+---
+
+## Step 1: Verify Git Installation
+
+Check Git on the Jenkins server.
+
+```bash
+git --version
+```
+
+If Git is installed, continue.
+
+---
+
+## Step 2: Create a Jenkins Pipeline
+
+Open Jenkins.
+
+```
+http://YOUR_ELASTIC_IP:8080
+```
+
+Create a new Pipeline job.
+
+```
+New Item
+    ↓
+Name: netflix-pipeline
+    ↓
+Select: Pipeline
+    ↓
+OK
+```
+
+Under the **Pipeline** section, choose **Pipeline Script** and paste the following Jenkinsfile.
+
+```groovy
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/YOUR_GITHUB_USERNAME/netflix-devsecops-project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t netflix:v1 .'
+            }
+        }
+
+        stage('Remove Old Container') {
+            steps {
+                sh 'docker rm -f netflix-container || true'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh 'docker run -d --name netflix-container -p 80:80 netflix:v1'
+            }
+        }
+
+    }
+}
+```
+
+Replace:
+
+```
+YOUR_GITHUB_USERNAME
+```
+
+with your GitHub username, then click **Save**.
+
+---
+
+## Step 3: Build the Pipeline
+
+Click:
+
+```
+Build Now
+```
+
+Monitor the build from:
+
+```
+Build History
+    ↓
+Console Output
+```
+
+Expected stages:
+
+- Clean Workspace
+- Checkout Code
+- Build Docker Image
+- Remove Old Container
+- Deploy Container
+
+Expected result:
+
+```
+Finished: SUCCESS
+```
+
+---
+
+## Step 4: Verify Deployment
+
+Check the running container.
+
+```bash
+docker ps
+```
+
+Expected:
+
+```
+netflix-container
+```
+
+Open the application.
+
+```
+http://YOUR_ELASTIC_IP
+```
+
+The Netflix page should load successfully.
+
+---
+
+## Step 5: Test the CI/CD Pipeline
+
+Go to your project.
+
+```bash
+cd ~/projects/netflix-devsecops-project
+```
+
+Edit the homepage.
+
+```bash
+vim index.html
+```
+
+Replace:
+
+```
+DevSecOps Project by Pradeep Kumar
+```
+
+with:
+
+```
+Netflix DevSecOps Pipeline Version 2
+```
+
+Save the file.
+
+```
+ESC
+:wq
+```
+
+Commit and push the changes.
+
+```bash
+git add .
+git commit -m "Updated homepage"
+git push origin main
+```
+
+---
+
+## Step 6: Rebuild the Pipeline
+
+In Jenkins, click:
+
+```
+Build Now
+```
+
+After the build completes successfully, open:
+
+```
+http://YOUR_ELASTIC_IP
+```
+
+You should see:
+
+```
+Netflix DevSecOps Pipeline Version 2
+```
+
+This confirms your Jenkins CI/CD pipeline is working correctly.
+
+---
+
+# Next Phase – SonarQube Integration
+
+In the next phase, the pipeline will include code quality scanning.
+
+```text
+GitHub
+   ↓
+Jenkins
+   ↓
+SonarQube Scan
+   ↓
+Docker Build
+   ↓
+Deploy
+```
+
+Since this project uses an AWS Free Tier EC2 instance, we'll first verify that swap memory is configured and the server has sufficient available memory before installing SonarQube.
+
+---
+# PHASE 5 – Install SonarQube
+
+> **Note:** Since this project uses an AWS Free Tier EC2 instance (≈1 GB RAM), SonarQube will run inside Docker. It may take a few minutes to start, but it is sufficient for learning and this project.
+
+---
+
+## Step 1: Check Available Memory
+
+Verify that swap memory is available.
+
+```bash
+free -h
+```
+
+If swap is approximately **2 GB**, continue.
+
+---
+
+## Step 2: Stop the Netflix Container
+
+Free up memory before starting SonarQube.
+
+```bash
+docker stop netflix-container
+docker ps
+```
+
+Verify that `netflix-container` is no longer running.
+
+---
+
+## Step 3: Start SonarQube
+
+Run the SonarQube Community LTS container.
+
+```bash
+docker run -d \
+--name sonarqube \
+-p 9000:9000 \
+sonarqube:lts-community
+```
+
+Verify:
+
+```bash
+docker ps
+```
+
+Wait **2–5 minutes** for SonarQube to initialize.
+
+---
+
+## Step 4: Monitor Startup
+
+View the container logs.
+
+```bash
+docker logs -f sonarqube
+```
+
+Wait until you see a message similar to:
+
+```
+SonarQube is operational
+```
+
+Press **Ctrl + C** to exit the logs.
+
+---
+
+## Step 5: Access SonarQube
+
+Open your browser.
+
+```
+http://YOUR_ELASTIC_IP:9000
+```
+
+Default credentials:
+
+- **Username:** `admin`
+- **Password:** `admin`
+
+You'll be prompted to change the default password after logging in.
+
+---
+
+## Step 6: Create a SonarQube Project
+
+Inside SonarQube:
+
+```
+Create Project
+    ↓
+Project Name: Netflix-DevSecOps
+    ↓
+Choose: Locally
+    ↓
+Generate Token
+```
+
+Copy and save the generated token securely. It will be required later when integrating SonarQube with Jenkins.
+
+---
+
+- SonarQube token generated and saved
