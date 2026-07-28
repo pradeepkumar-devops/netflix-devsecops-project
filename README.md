@@ -184,16 +184,16 @@ Allocate
 Click:
 Actions → Associate Elastic IP Address
 
-# Choose:
+### Choose:
 Resource Type: Instance
 Instance: netflix-devsecops-server
 Private IP: Default
 Click:Associate
 ## Step 17: Verify
 Go to:EC2 → Instances
-# You should now see:
+### You should now see:
 Public IPv4 Address = Elastic IP
 
-#Example:
+###Example:
 43.xx.xx.xx
-#This IP will remain the same even after restarting the instance.
+###This IP will remain the same even after restarting the instance.
