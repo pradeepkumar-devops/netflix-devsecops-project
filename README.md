@@ -110,16 +110,16 @@ Step 1: Create GitHub Repository First
 #Click:Create Repository
 
 ## Step 2: Initial README
--Create this README content.
--Use this as your starting README:
--Netflix DevSecOps Project
+Create this README content.
+->Use this as your starting README:
+->Netflix DevSecOps Project
 
 ## Step 3: Create AWS Free Tier EC2
--Open AWS Console:EC2 → Launch Instance
--Settings:
--Name:netflix-devsecops-server
--AMI:Ubuntu Server 24.04 LTS
--Instance Type:t2.micro (or) t3.micro   (Free Tier eligible)
+->Open AWS Console:EC2 → Launch Instance
+->Settings:
+->Name:netflix-devsecops-server
+->AMI:Ubuntu Server 24.04 LTS
+->Instance Type:t2.micro (or) t3.micro   (Free Tier eligible)
 
 ## Step 4: Create Key Pair
 -Click:Create New Key Pair
