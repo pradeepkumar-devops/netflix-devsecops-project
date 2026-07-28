@@ -208,46 +208,24 @@ Public IPv4 Address = Elastic IP
 
 This tells us available RAM, disk, and CPU.
 
-Step 2: Install Docker
+### Step 2: Install Docker
 
 Run:
 '''bash
 curl -fsSL https://get.docker.com -o install-docker.sh
-Check the file:
-ls -l
-Install Docker:
-sudo sh install-docker.sh
-
+- Check the file: ls -l
+- Install Docker: sudo sh install-docker.sh
 Wait until installation completes.
 
-Step 3: Verify Docker Service
+### Step 3: Verify Docker Service
+-Check:sudo systemctl status docker
+Expected:active (running)
+###Step 4: Enable Docker at Boot
+- sudo systemctl enable docker
+- Verify: sudo systemctl is-enabled docker
+-Expected:enabled
 
-Check:
-
-sudo systemctl status docker
-
-Expected:
-
-active (running)
-
-Press:
-
-q
-
-to exit.
-
-Step 4: Enable Docker at Boot
-sudo systemctl enable docker
-
-Verify:
-
-sudo systemctl is-enabled docker
-
-Expected:
-
-enabled
-Step 5: Allow Ubuntu User to Use Docker
-
+###Step 5: " Allow Ubuntu User to Use Docker "
 Without this, you'll get:
 
 permission denied while trying to connect to docker.sock
