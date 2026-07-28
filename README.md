@@ -1344,74 +1344,29 @@ Finished: SUCCESS
 ```
 
 ---
-# PHASE 8 – Monitoring with Prometheus & Grafana
+# PHASE 8 – Prometheus & Grafana Monitoring
 
-## Step 1: Verify Prometheus & Grafana
+## Goal
 
-Open the following URLs:
+Monitor the application and EC2 server metrics using Prometheus and Grafana.
 
-- Prometheus: `http://YOUR_ELASTIC_IP:9090`
-- Grafana: `http://YOUR_ELASTIC_IP:3000`
+Monitoring Flow:
 
-Login to Grafana using:
-
-- **Username:** `admin`
-- **Password:** `admin`
-
-Change the password when prompted.
-
----
-
-## Step 2: Configure Prometheus Data Source
-
-In Grafana, navigate to:
-
-```
-Connections
-→ Data Sources
-→ Add Data Source
-→ Prometheus
-```
-
-Set the URL:
-
-```
-http://YOUR_ELASTIC_IP:9090
-```
-
-Click **Save & Test**.
-
----
-
-## Step 3: Install Node Exporter
-
-Run:
-
-```bash
-docker run -d \
---name node-exporter \
---restart unless-stopped \
--p 9100:9100 \
-prom/node-exporter
-```
-
-Verify:
-
-```bash
-docker ps
-```
-
-Open:
-
-```
-http://YOUR_ELASTIC_IP:9100/metrics
+```text
+EC2 Server
+     ↓
+Node Exporter
+     ↓
+Prometheus
+     ↓
+Grafana Dashboard
 ```
 
 ---
 
-## Step 4: Configure Prometheus
+# Step 1: Run Prometheus
 
-Create the Prometheus configuration.
+Create Prometheus configuration.
 
 ```bash
 mkdir -p ~/prometheus
@@ -1430,11 +1385,9 @@ scrape_configs:
       - targets: ["YOUR_ELASTIC_IP:9100"]
 ```
 
-Restart Prometheus.
+Run Prometheus:
 
 ```bash
-docker rm -f prometheus
-
 docker run -d \
 --name prometheus \
 -p 9090:9090 \
@@ -1442,7 +1395,51 @@ docker run -d \
 prom/prometheus
 ```
 
-Verify the target:
+Verify:
+
+```bash
+docker ps
+```
+
+Open:
+
+```
+http://YOUR_ELASTIC_IP:9090
+```
+
+---
+
+# Step 2: Install Node Exporter
+
+Node Exporter collects EC2 system metrics.
+
+Run:
+
+```bash
+docker run -d \
+--name node-exporter \
+--restart unless-stopped \
+-p 9100:9100 \
+prom/node-exporter
+```
+
+Verify:
+
+```bash
+docker ps
+```
+
+Check metrics:
+
+```
+http://YOUR_ELASTIC_IP:9100/metrics
+```
+
+---
+
+# Step 3: Verify Prometheus Target
+
+Open:
 
 ```
 http://YOUR_ELASTIC_IP:9090/targets
@@ -1451,18 +1448,87 @@ http://YOUR_ELASTIC_IP:9090/targets
 Expected:
 
 ```
-node-exporter = UP
+node-exporter   UP
 ```
 
 ---
 
-## Step 5: Import Grafana Dashboard
+# Step 4: Run Grafana
 
-Navigate to:
+Start Grafana container.
+
+```bash
+docker run -d \
+--name grafana \
+-p 3000:3000 \
+grafana/grafana
+```
+
+Verify:
+
+```bash
+docker ps
+```
+
+Open:
+
+```
+http://YOUR_ELASTIC_IP:3000
+```
+
+Login:
+
+```
+Username: admin
+Password: admin
+```
+
+Change the password after login.
+
+---
+
+# Step 5: Connect Prometheus with Grafana
+
+In Grafana:
+
+```
+Connections
+    ↓
+Data Sources
+    ↓
+Add Data Source
+    ↓
+Prometheus
+```
+
+Set URL:
+
+```
+http://YOUR_ELASTIC_IP:9090
+```
+
+Click:
+
+```
+Save & Test
+```
+
+Expected:
+
+```
+Data source is working
+```
+
+---
+
+# Step 6: Import Dashboard
+
+In Grafana:
 
 ```
 Dashboards
-→ Import
+    ↓
+Import
 ```
 
 Dashboard ID:
@@ -1471,32 +1537,50 @@ Dashboard ID:
 1860
 ```
 
-Select the **Prometheus** data source and import the dashboard.
+Select:
+
+```
+Prometheus
+```
+
+Import the dashboard.
 
 ---
 
-## ✅ Phase 8 Checklist
+# Metrics Available
 
-- Prometheus running
-- Grafana running
-- Prometheus data source configured
-- Node Exporter installed
-- Prometheus target is UP
-- Grafana dashboard imported
+Grafana dashboard shows:
+
+- CPU Usage
+- Memory Usage
+- Disk Usage
+- Network Traffic
+- System Load
 
 ---
 
-# PHASE 9 – Kubernetes Deployment
+# Update Project Architecture
 
-For AWS Free Tier, keep the monitoring stack on the EC2 instance and deploy Kubernetes locally using **Minikube** or **Kind**.
+Final DevSecOps Monitoring Flow:
 
-The application will be deployed using:
+```text
+GitHub
+   ↓
+Jenkins CI/CD
+   ↓
+SonarQube
+   ↓
+Trivy Security Scan
+   ↓
+Docker Build
+   ↓
+Docker Hub
+   ↓
+Deploy Container
+   ↓
+Prometheus
+   ↓
+Grafana Dashboard
+```
 
-- Deployment
-- Service
-- Scaling
-- Rolling Updates
-- Rollback
-
-This setup avoids memory issues on the EC2 instance.
-
+---
