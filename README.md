@@ -198,121 +198,254 @@ Public IPv4 Address = Elastic IP
 43.xx.xx.xx
 ###This IP will remain the same even after restarting the instance.
 
-## PHASE 2 – Docker Installation
-### Step 1: Check System Resources
-- Before installing Docker,
-- check: Run
-- free -h (check RAM)
-- df -h (check disk space)
-- nproc (check CPU Cores)
+# PHASE 2 – Docker Installation
 
-This tells us available RAM, disk, and CPU.
+## Step 1: Check System Resources
 
-### Step 2: Install Docker
+Before installing Docker, check the available system resources.
 
-Run:
-'''bash
+### Check RAM
+
+```bash
+free -h
+```
+
+### Check Disk Space
+
+```bash
+df -h
+```
+
+### Check CPU Cores
+
+```bash
+nproc
+```
+
+These commands display:
+
+- Available RAM
+- Available Disk Space
+- Number of CPU Cores
+
+---
+
+# Step 2: Install Docker
+
+Download the official Docker installation script.
+
+```bash
 curl -fsSL https://get.docker.com -o install-docker.sh
-- Check the file: ls -l
-- Install Docker: sudo sh install-docker.sh
-Wait until installation completes.
+```
 
-### Step 3: Verify Docker Service
--Check:sudo systemctl status docker
-Expected:active (running)
-###Step 4: Enable Docker at Boot
-- sudo systemctl enable docker
-- Verify: sudo systemctl is-enabled docker
--Expected:enabled
+Verify the script has been downloaded.
 
-###Step 5: " Allow Ubuntu User to Use Docker "
-Without this, you'll get:
+```bash
+ls -l
+```
 
-permission denied while trying to connect to docker.sock
+You should see:
 
-Add user:
+```
+install-docker.sh
+```
 
-sudo usermod -aG docker ubuntu
+Run the installation.
 
-Apply changes:
+```bash
+sudo sh install-docker.sh
+```
 
-newgrp docker
-Step 6: Verify Docker
-docker --version
+Wait until the installation completes.
 
-Example:
+---
 
-Docker version 28.x.x
-Step 7: Test Docker
+# Step 3: Verify Docker Service
 
-Run:
+Check Docker service status.
 
-docker run hello-world
+```bash
+sudo systemctl status docker
+```
 
-Expected:
+Expected output:
 
-Hello from Docker!
+```
+active (running)
+```
 
-If you see this message, Docker is working.
+---
 
-PHASE 2.1 – Create Project Directory
+# Step 4: Enable Docker at Boot
 
-Create workspace:
+Enable Docker to start automatically after every reboot.
 
-mkdir -p ~/projects/netflix-devsecops-project
-
-Go inside:
-
-cd ~/projects/netflix-devsecops-project
+```bash
+sudo systemctl enable docker
+```
 
 Verify:
 
-pwd
+```bash
+sudo systemctl is-enabled docker
+```
 
 Expected:
 
+```
+enabled
+```
+
+---
+
+# Step 5: Allow Ubuntu User to Use Docker
+
+Without this configuration you may encounter the following error:
+
+```
+permission denied while trying to connect to docker.sock
+```
+
+Add the Ubuntu user to the Docker group.
+
+```bash
+sudo usermod -aG docker ubuntu
+```
+
+Apply the group changes immediately.
+
+```bash
+newgrp docker
+```
+
+---
+
+# Step 6: Verify Docker Installation
+
+Check Docker version.
+
+```bash
+docker --version
+```
+
+Example:
+
+```
+Docker version 28.x.x
+```
+
+---
+
+# Step 7: Test Docker
+
+Run the Docker Hello World container.
+
+```bash
+docker run hello-world
+```
+
+Expected output:
+
+```
+Hello from Docker!
+```
+
+If you see this message, Docker is installed correctly.
+
+---
+
+# PHASE 2.1 – Create Project Directory
+
+Create the workspace.
+
+```bash
+mkdir -p ~/projects/netflix-devsecops-project
+```
+
+Move into the project directory.
+
+```bash
+cd ~/projects/netflix-devsecops-project
+```
+
+Verify the current location.
+
+```bash
+pwd
+```
+
+Expected:
+
+```
 /home/ubuntu/projects/netflix-devsecops-project
-PHASE 2.2 – Initialize Git Repository
+```
 
-Initialize Git:
+---
 
+# PHASE 2.2 – Initialize Git Repository
+
+Initialize Git.
+
+```bash
 git init
+```
 
-Configure Git if needed:
+Configure Git (if needed).
 
+```bash
 git config --global user.name "Pradeep Kumar"
 git config --global user.email "YOUR_GITHUB_EMAIL"
+```
 
-Check:
+Verify the configuration.
 
+```bash
 git config --list
-PHASE 2.3 – Create Netflix App Files
+```
 
-Create files:
+---
 
+# PHASE 2.3 – Create Netflix Application Files
+
+Create the required files.
+
+```bash
 touch index.html
 touch style.css
 touch Dockerfile
 touch README.md
+```
 
-Check:
+Verify the files.
 
+```bash
 ls
+```
 
-Expected:
+Expected output:
 
+```
 Dockerfile
 README.md
 index.html
 style.css
-Step 8: Create Netflix Homepage
+```
 
-Edit:
+---
 
+# Step 8: Create Netflix Homepage
+
+Open the HTML file.
+
+```bash
 vim index.html
+```
 
-Press i and paste:
+Press **`i`** to enter Insert Mode.
 
+Paste the following code.
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -325,16 +458,28 @@ Press i and paste:
     <p>DevSecOps Project by Pradeep Kumar</p>
 </body>
 </html>
+```
 
-Save:
+Save and exit.
 
+```
 ESC
 :wq
-Step 9: Create CSS
+```
+
+---
+
+# Step 9: Create CSS
+
+Open the CSS file.
+
+```bash
 vim style.css
+```
 
-Paste:
+Press **`i`** and paste the following.
 
+```css
 body{
     background:black;
     color:white;
@@ -347,113 +492,213 @@ h1{
     color:red;
     font-size:60px;
 }
+```
 
-Save:
+Save and exit.
 
+```
 ESC
 :wq
-Step 10: Test Locally
+```
 
-Install nginx:
+---
 
+# Step 10: Test the Website Locally
+
+Install Nginx.
+
+```bash
 sudo apt install nginx -y
+```
 
-Copy files:
+Copy the website files.
 
+```bash
 sudo cp index.html /var/www/html/
 sudo cp style.css /var/www/html/
+```
 
-Open browser:
+Open your browser.
 
+```
 http://YOUR_ELASTIC_IP
+```
 
-You should see the Netflix page.
+You should see the Netflix homepage.
 
-PHASE 2.4 – Dockerize Application
+---
 
-Create Dockerfile:
+# PHASE 2.4 – Dockerize the Application
 
+Create the Dockerfile.
+
+```bash
 vim Dockerfile
+```
 
-Paste:
+Press **`i`** and paste:
 
+```dockerfile
 FROM nginx:latest
 
 COPY . /usr/share/nginx/html
 
 EXPOSE 80
+```
 
-Save.
+Save and exit.
 
-Step 11: Build Docker Image
+```
+ESC
+:wq
+```
 
-Inside project folder:
+---
 
+# Step 11: Build Docker Image
+
+Inside the project directory, build the Docker image.
+
+```bash
 docker build -t netflix:v1 .
+```
 
-Check:
+Verify the image.
 
+```bash
 docker images
+```
 
-Expected:
+Expected output:
 
-netflix    v1
-Step 12: Run Container
+```
+REPOSITORY    TAG
+netflix       v1
+```
 
-Stop nginx first to free port 80:
+---
 
+# Step 12: Run Docker Container
+
+Since Nginx is already using Port **80**, stop it first.
+
+```bash
 sudo systemctl stop nginx
+```
 
-Run:
+Run the Docker container.
 
+```bash
 docker run -d --name netflix-container -p 80:80 netflix:v1
+```
 
-Verify:
+Verify the running container.
 
+```bash
 docker ps
+```
 
-Open:
+Open your browser.
 
+```
 http://YOUR_ELASTIC_IP
+```
 
-You should see the Netflix page served from Docker.
+You should now see the Netflix webpage served from the Docker container.
 
-Step 13: Commit to GitHub
+---
 
-Create .gitignore:
+# Step 13: Commit the Project to GitHub
 
+Create a `.gitignore` file.
+
+```bash
 touch .gitignore
+```
 
-Add:
+Add the following content.
 
+```text
 *.log
+```
 
-Commit:
+Stage all files.
 
+```bash
 git add .
+```
+
+Create the first commit.
+
+```bash
 git commit -m "Initial Netflix application and Docker setup"
+```
 
-Connect your GitHub repository:
+Connect your GitHub repository.
 
+```bash
 git remote add origin YOUR_REPOSITORY_URL
+```
 
-Push:
+Rename the default branch.
+
+```bash
 git branch -M main
+```
+
+Push the project.
+
+```bash
 git push -u origin main
+```
 
-## Phase 2 Completion Checklist
-✅ Docker installed
-✅ Docker service running
-✅ Docker permissions fixed
-✅ Netflix app created
-✅ Dockerfile created
-✅ Docker image built
-✅ Container running
-✅ App accessible via Elastic IP
-✅ Code pushed to GitHub
+---
 
-Stop here and verify these commands:
+# Phase 2 Completion Checklist
+
+Verify the following commands before proceeding.
+
+### Docker Version
+
+```bash
 docker --version
+```
+
+### Running Containers
+
+```bash
 docker ps
+```
+
+### Available Docker Images
+
+```bash
 docker images
+```
+
+### Verify the Application Locally
+
+```bash
 curl http://localhost
+```
+
+---
+
+# ✅ Phase 2 Completion Checklist
+
+- ✅ Docker installed successfully
+- ✅ Docker service running
+- ✅ Docker starts automatically after reboot
+- ✅ Docker permissions configured for Ubuntu user
+- ✅ Netflix application created
+- ✅ Dockerfile created
+- ✅ Docker image built successfully
+- ✅ Docker container running
+- ✅ Application accessible through Elastic IP
+- ✅ Code pushed to GitHub
+- ✅ Docker installation verified
+- ✅ Docker container verified
+- ✅ Docker images verified
+- ✅ Application tested using `curl http://localhost`
+
+**Phase 2 is now complete.**
