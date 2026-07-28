@@ -1094,3 +1094,409 @@ Open the **Netflix-DevSecOps** project to view the latest code analysis, issues,
 ---
 
 
+---
+# PHASE 7 – Trivy Security Scan & Docker Hub Integration
+
+## Goal
+
+Add security scanning before pushing Docker images.
+
+Pipeline:
+
+```text
+GitHub
+   ↓
+Jenkins
+   ↓
+SonarQube Code Analysis
+   ↓
+Trivy Filesystem Scan
+   ↓
+Docker Build
+   ↓
+Trivy Image Scan
+   ↓
+Docker Hub Push
+   ↓
+Deploy Container
+```
+
+---
+
+# Step 1: Install Trivy on Jenkins Server
+
+Update packages.
+
+```bash
+sudo apt update
+```
+
+Install required packages.
+
+```bash
+sudo apt install wget apt-transport-https gnupg lsb-release -y
+```
+
+Add Trivy repository.
+
+```bash
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+```
+
+Add Trivy source.
+
+```bash
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] \
+https://aquasecurity.github.io/trivy-repo/deb \
+$(lsb_release -sc) main" | \
+sudo tee /etc/apt/sources.list.d/trivy.list
+```
+
+Install Trivy.
+
+```bash
+sudo apt update
+sudo apt install trivy -y
+```
+
+Verify:
+
+```bash
+trivy --version
+```
+
+---
+
+# Step 2: Trivy Filesystem Scan
+
+Go to your project directory.
+
+```bash
+cd ~/projects/netflix-devsecops-project
+```
+
+Run a filesystem scan.
+
+```bash
+trivy fs .
+```
+
+This scans:
+
+- Source code vulnerabilities
+- Dependency issues
+- Configuration problems
+
+---
+
+# Step 3: Trivy Docker Image Scan
+
+After building the Docker image:
+
+```bash
+docker build -t netflix:v1 .
+```
+
+Scan the Docker image.
+
+```bash
+trivy image netflix:v1
+```
+
+For vulnerability-only scanning:
+
+```bash
+trivy image --scanners vuln netflix:v1
+```
+
+---
+
+# Step 4: Create Docker Hub Repository
+
+Create a repository in Docker Hub.
+
+Example:
+
+```
+Repository Name:
+netflix-devsecops
+```
+
+Visibility:
+
+```
+Public
+```
+
+---
+
+# Step 5: Test Docker Hub Login
+
+Login from EC2.
+
+```bash
+docker login
+```
+
+Verify:
+
+```bash
+cat ~/.docker/config.json
+```
+
+---
+
+# Step 6: Push Docker Image Manually
+
+Tag the image.
+
+```bash
+docker tag netflix:v1 YOUR_USERNAME/netflix-devsecops:v1
+```
+
+Push:
+
+```bash
+docker push YOUR_USERNAME/netflix-devsecops:v1
+```
+
+Verify the image appears in Docker Hub.
+
+---
+
+# Step 7: Add Docker Hub Credentials in Jenkins
+
+Go to:
+
+```
+Manage Jenkins
+→ Credentials
+→ System
+→ Global Credentials
+```
+
+Add:
+
+```
+Kind:
+Username with Password
+
+ID:
+dockerhub-creds
+```
+
+Enter:
+
+- Docker Hub Username
+- Docker Hub Password / Access Token
+
+Save.
+
+---
+
+# Step 8: Jenkins Pipeline Security Stages
+
+Add these stages to Jenkins Pipeline:
+
+```text
+Checkout Code
+        ↓
+SonarQube Scan
+        ↓
+Trivy Filesystem Scan
+        ↓
+Build Docker Image
+        ↓
+Trivy Image Scan
+        ↓
+Push Image to Docker Hub
+        ↓
+Deploy Container
+```
+
+---
+
+# Step 9: Verify Pipeline
+
+Run:
+
+```
+Build Now
+```
+
+Expected stages:
+
+```
+Checkout Code
+SonarQube Scan
+Trivy Filesystem Scan
+Build Docker Image
+Trivy Image Scan
+Push Docker Image
+Deploy Container
+```
+
+Expected:
+
+```
+Finished: SUCCESS
+```
+
+---
+# PHASE 8 – Monitoring with Prometheus & Grafana
+
+## Step 1: Verify Prometheus & Grafana
+
+Open the following URLs:
+
+- Prometheus: `http://YOUR_ELASTIC_IP:9090`
+- Grafana: `http://YOUR_ELASTIC_IP:3000`
+
+Login to Grafana using:
+
+- **Username:** `admin`
+- **Password:** `admin`
+
+Change the password when prompted.
+
+---
+
+## Step 2: Configure Prometheus Data Source
+
+In Grafana, navigate to:
+
+```
+Connections
+→ Data Sources
+→ Add Data Source
+→ Prometheus
+```
+
+Set the URL:
+
+```
+http://YOUR_ELASTIC_IP:9090
+```
+
+Click **Save & Test**.
+
+---
+
+## Step 3: Install Node Exporter
+
+Run:
+
+```bash
+docker run -d \
+--name node-exporter \
+--restart unless-stopped \
+-p 9100:9100 \
+prom/node-exporter
+```
+
+Verify:
+
+```bash
+docker ps
+```
+
+Open:
+
+```
+http://YOUR_ELASTIC_IP:9100/metrics
+```
+
+---
+
+## Step 4: Configure Prometheus
+
+Create the Prometheus configuration.
+
+```bash
+mkdir -p ~/prometheus
+nano ~/prometheus/prometheus.yml
+```
+
+Add:
+
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["YOUR_ELASTIC_IP:9100"]
+```
+
+Restart Prometheus.
+
+```bash
+docker rm -f prometheus
+
+docker run -d \
+--name prometheus \
+-p 9090:9090 \
+-v ~/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+prom/prometheus
+```
+
+Verify the target:
+
+```
+http://YOUR_ELASTIC_IP:9090/targets
+```
+
+Expected:
+
+```
+node-exporter = UP
+```
+
+---
+
+## Step 5: Import Grafana Dashboard
+
+Navigate to:
+
+```
+Dashboards
+→ Import
+```
+
+Dashboard ID:
+
+```
+1860
+```
+
+Select the **Prometheus** data source and import the dashboard.
+
+---
+
+## ✅ Phase 8 Checklist
+
+- Prometheus running
+- Grafana running
+- Prometheus data source configured
+- Node Exporter installed
+- Prometheus target is UP
+- Grafana dashboard imported
+
+---
+
+# PHASE 9 – Kubernetes Deployment
+
+For AWS Free Tier, keep the monitoring stack on the EC2 instance and deploy Kubernetes locally using **Minikube** or **Kind**.
+
+The application will be deployed using:
+
+- Deployment
+- Service
+- Scaling
+- Rolling Updates
+- Rollback
+
+This setup avoids memory issues on the EC2 instance.
+
