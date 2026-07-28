@@ -174,12 +174,26 @@ Run:sudo apt install -y git curl wget unzip vim net-tools
 - ✅ Verify Git: 'git --version'
 - ✅ Verify Curl: 'crl --version'
   
-  
-## Step 12: Create Project Folder
-Run: mkdir ~/projects
-->cd ~/projects
-->Verify:pwd
+## Step 15: Allocate Elastic IP
+->In AWS Console:EC2 → Network & Security → Elastic IPs
+->Click:Allocate Elastic IP Address
+->Keep defaults and click:
+Allocate
+## Step 16: Associate Elastic IP
+->Select the newly created Elastic IP.
+Click:
+Actions → Associate Elastic IP Address
 
-Expected output:
+# Choose:
+Resource Type: Instance
+Instance: netflix-devsecops-server
+Private IP: Default
+Click:Associate
+## Step 17: Verify
+Go to:EC2 → Instances
+# You should now see:
+Public IPv4 Address = Elastic IP
 
-/home/ubuntu/projectsabout this project or want to discuss the implementation, feel free to reach out via GitHub Issues on this repository.
+#Example:
+43.xx.xx.xx
+#This IP will remain the same even after restarting the instance.
