@@ -824,7 +824,7 @@ This confirms your Jenkins CI/CD pipeline is working correctly.
 
 ---
 
-# Next Phase – SonarQube Integration
+#  Phase 5 – SonarQube Integration
 
 In the next phase, the pipeline will include code quality scanning.
 
@@ -949,3 +949,148 @@ Copy and save the generated token securely. It will be required later when integ
 ---
 
 - SonarQube token generated and saved
+# PHASE 6 – Integrate SonarQube with Jenkins
+
+## Step 1: Install the SonarQube Plugin
+
+In Jenkins, navigate to:
+
+```
+Manage Jenkins
+→ Plugins
+→ Available Plugins
+```
+
+Install:
+
+- SonarQube Scanner
+
+Restart Jenkins if prompted.
+
+---
+
+## Step 2: Configure the SonarQube Server
+
+Go to:
+
+```
+Manage Jenkins
+→ System
+→ SonarQube Servers
+```
+
+Add a new server with:
+
+- **Name:** `SonarQube`
+- **Server URL:** `http://YOUR_ELASTIC_IP:9000`
+
+---
+
+## Step 3: Add the SonarQube Token
+
+Navigate to:
+
+```
+Manage Jenkins
+→ Credentials
+→ System
+→ Global Credentials
+```
+
+Add a new credential:
+
+- **Kind:** Secret Text
+- **Secret:** `YOUR_SONAR_TOKEN`
+- **ID:** `sonar-token`
+
+Return to the SonarQube server configuration and select **sonar-token**, then **Save**.
+
+---
+
+## Step 4: Configure Sonar Scanner
+
+Navigate to:
+
+```
+Manage Jenkins
+→ Tools
+```
+
+Under **SonarQube Scanner**, add:
+
+- **Name:** `sonar-scanner`
+- Enable **Install automatically**
+
+Save the configuration.
+
+---
+
+## Step 5: Configure the Project
+
+Create the SonarQube configuration file.
+
+```bash
+cd ~/projects/netflix-devsecops-project
+
+touch sonar-project.properties
+```
+
+Add:
+
+```properties
+sonar.projectKey=Netflix-DevSecOps
+sonar.projectName=Netflix-DevSecOps
+sonar.sources=.
+sonar.sourceEncoding=UTF-8
+```
+
+Commit the changes.
+
+```bash
+git add .
+git commit -m "Added SonarQube configuration"
+git push origin main
+```
+
+---
+
+## Step 6: Update the Jenkins Pipeline
+
+Replace the existing Jenkins Pipeline with the updated pipeline that includes the **SonarQube Scan** stage.
+
+Save the pipeline configuration.
+
+---
+
+## Step 7: Run the Pipeline
+
+Click **Build Now** in Jenkins.
+
+The pipeline should execute the following stages:
+
+- Checkout Code
+- SonarQube Scan
+- Build Docker Image
+- Deploy Container
+
+Expected result:
+
+```
+Finished: SUCCESS
+```
+
+---
+
+## Step 8: Verify the Scan
+
+Open SonarQube:
+
+```
+http://YOUR_ELASTIC_IP:9000
+```
+
+Open the **Netflix-DevSecOps** project to view the latest code analysis, issues, security hotspots, and dashboard.
+
+---
+
+
